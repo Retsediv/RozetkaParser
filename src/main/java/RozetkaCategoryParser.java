@@ -69,8 +69,58 @@ public class RozetkaCategoryParser {
 
     }
 
-    public void getProductReviews(String url) {
+    public HashMap<String, String> getProductCharacteristics(String url) throws IOException {
+        url = url + "characteristics";
+        Document productPage = Jsoup.connect(url).get();
+        Elements characteristicsElements = productPage.select(".pp-characteristics-tab-i");
+        HashMap<String, String> characteristics = new HashMap<String, String>();
 
+        System.out.println(productPage);
+
+        for(Element characteristicsElement: characteristicsElements){
+            characteristics.put(
+                    characteristicsElement.select(".pp-characteristics-tab-i-title span").text(),
+                    characteristicsElement.select(".pp-characteristics-tab-i-field a").text());
+        }
+
+        return characteristics;
+    }
+
+    public ArrayList<HashMap<String, String>> getAllProductReviews(String url) throws IOException {
+        Document doc = Jsoup.connect(url + "comments").get();
+        int numberOfPages = Integer.parseInt(doc.select(".paginator-catalog-l-i:last-child span").text());
+
+        ArrayList<HashMap<String, String>> reviews = new ArrayList<HashMap<String, String>>();
+
+        for (int i = 0; i < numberOfPages; i++) {
+            ArrayList<HashMap<String, String>> reviewsOnPage = this.getProductReviewsOnPage(url, i+1);
+            reviews.addAll(reviewsOnPage);
+        }
+
+        return reviews;
+    }
+
+    public ArrayList<HashMap<String, String>> getProductReviewsOnPage(String url, int pageCount) throws IOException {
+        url = url + "comments/page=" + pageCount;
+        Document reviewPage = Jsoup.connect(url).get();
+        Elements rawReviews = reviewPage.select(".pp-review-i");
+        ArrayList<HashMap<String, String>> reviews = new ArrayList<HashMap<String, String>>();
+
+        for (Element rawReview: rawReviews){
+            HashMap<String, String> review = new HashMap<String, String>();
+            review.put("author", rawReview.select(".pp-review-author .pp-review-author-name").text());
+            review.put("status", rawReview.select(".pp-review-author .pp-review-buyer-note").text());
+            review.put("date", rawReview.select(".pp-review-date").text());
+            review.put("rate", rawReview.select(".g-rating-stars-i").attr("content"));
+            review.put("full_review", rawReview.select(".pp-review-text > div:first-child").text());
+            review.put("full_review", rawReview.select(".pp-review-text > div:first-child").text());
+            review.put("pros", rawReview.select(".pp-review-text > div:nth-child(2)").text());
+            review.put("cons", rawReview.select(".pp-review-text > div:nth-child(3)").text());
+
+            reviews.add(review);
+        }
+
+        return reviews;
     }
 
     /**
@@ -131,10 +181,10 @@ public class RozetkaCategoryParser {
     }
 
 
-    public void process() {
+    public void process() throws IOException {
 
         ArrayList<HashMap<String, String>> products = this.getProductsOnPage(1);
-        System.out.println(products.size());
-        System.out.println(Arrays.toString(products.toArray()));
+        System.out.println(this.getAllProductReviews(products.get(0).get("link")).size());
+
     }
 }
