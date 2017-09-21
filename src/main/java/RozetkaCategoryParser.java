@@ -65,8 +65,13 @@ public class RozetkaCategoryParser {
         return pagesCount;
     }
 
-    public void getProductFullDesctiption(String url) {
+    public HashMap<String, Cloneable> getProductFullDesctiption(String url) throws IOException {
+        HashMap<String, Cloneable> fullDescription = new HashMap<String, Cloneable>();
+        fullDescription.put("characteristics", this.getProductCharacteristics(url));
+        System.out.println(this.getProductCharacteristics(url));
+        fullDescription.put("reviews", this.getAllProductReviews(url));
 
+        return fullDescription;
     }
 
     public HashMap<String, String> getProductCharacteristics(String url) throws IOException {
@@ -74,8 +79,6 @@ public class RozetkaCategoryParser {
         Document productPage = Jsoup.connect(url).get();
         Elements characteristicsElements = productPage.select(".pp-characteristics-tab-i");
         HashMap<String, String> characteristics = new HashMap<String, String>();
-
-        System.out.println(productPage);
 
         for(Element characteristicsElement: characteristicsElements){
             characteristics.put(
@@ -110,7 +113,7 @@ public class RozetkaCategoryParser {
             HashMap<String, String> review = new HashMap<String, String>();
             review.put("author", rawReview.select(".pp-review-author .pp-review-author-name").text());
             review.put("status", rawReview.select(".pp-review-author .pp-review-buyer-note").text());
-            review.put("date", rawReview.select(".pp-review-date").text());
+            review.put("date", rawReview.select(".pp-review-date .pp-review-date-text").text());
             review.put("rate", rawReview.select(".g-rating-stars-i").attr("content"));
             review.put("full_review", rawReview.select(".pp-review-text > div:first-child").text());
             review.put("full_review", rawReview.select(".pp-review-text > div:first-child").text());
@@ -178,13 +181,5 @@ public class RozetkaCategoryParser {
         }
 
         return products;
-    }
-
-
-    public void process() throws IOException {
-
-        ArrayList<HashMap<String, String>> products = this.getProductsOnPage(1);
-        System.out.println(this.getAllProductReviews(products.get(0).get("link")).size());
-
     }
 }
