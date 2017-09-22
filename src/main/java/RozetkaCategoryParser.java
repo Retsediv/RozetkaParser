@@ -91,7 +91,11 @@ public class RozetkaCategoryParser {
 
     public ArrayList<HashMap<String, String>> getAllProductReviews(String url) throws IOException {
         Document doc = Jsoup.connect(url + "comments").get();
-        int numberOfPages = Integer.parseInt(doc.select(".paginator-catalog-l-i:last-child span").text());
+
+        int numberOfPages = 0;
+        if(!doc.select(".paginator-catalog-l-i:last-child span").text().equals("")){
+            numberOfPages = Integer.parseInt(doc.select(".paginator-catalog-l-i:last-child span").text());
+        }
 
         ArrayList<HashMap<String, String>> reviews = new ArrayList<HashMap<String, String>>();
 

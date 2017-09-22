@@ -15,12 +15,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.10.3</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.0</version>
-        </dependency>
     </dependencies>
 
 </project>
